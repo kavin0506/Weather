@@ -1,17 +1,17 @@
 
 // import Advice from './Advice';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css';
 // import Form from './Form';
 import { IoMdSearch } from "react-icons/io";
 import { createEntityAdapter } from '@reduxjs/toolkit';
 
 
-const Weather=({temp ,city,country,lat ,long,humidity,wind})=>{
+const Weather=({temp ,city,country,lat ,long,humidity,wind,icon})=>{
   return(
     <>
       <div className='imageSec'>
-        <img src='./image/snow.png' alt='snow'/>
+        <img src={icon} alt='snow'/>
       </div>
         <div className='temp'>{temp}°C</div>
         <div className='city'>{city}</div>
@@ -53,6 +53,7 @@ function App() {
   let apiKey="512af981855a7358f302dc8e7bf17c60";
   const[text,setText]=useState("chennai")
 
+  const[icon,setIcon]=useState("./image/snow.png")
   const[temp,setTemp]=useState(0);
   const[city,setCity]=useState("chennai");
   const[country,setCountry]=useState("IN");
@@ -61,6 +62,24 @@ function App() {
   const[humidity,setHumidity]=useState(0);
   const[wind,setWind]=useState(0);
   
+  
+  const weatherIcon={
+    "01d":"./image/sun.png",
+    "01n":"./image/sun.png",
+    "02d":"./image/cloud.png",
+    "02n":"./image/cloud.png",
+    "03d":"./image/normal.png",
+    "03n":"./image/normal.png",
+    "04d":"./image/normal.png",
+    "04n":"./image/normal.png",
+    "09d":"./image/rain.png",
+    "09n":"./image/rain.png",
+    "010d":"./image/rain.png",
+    "010n":"./image/rain.png",
+    "013d":"./image/snow.png",
+    "013n":"./image/snow.png"
+    
+  }
 
   const search = async()=>{
     let url=`https://api.openweathermap.org/data/2.5/weather?q=${text}&appid=${apiKey}&units=Metric`
@@ -73,6 +92,16 @@ function App() {
       if(data.cod==="404"){
         console.log("Not Found ")
       }
+      setTemp(Math.floor(data.main.temp))
+      setCity(data.name)
+      setCountry(data.sys.country)
+      setHumidity(data.main.humidity)
+      setWind(data.wind.speed)
+      setLat(data.coord.lat)
+      setLong(data.coord.lon)
+      const weatherIconCode=data.weather[0].icon;
+  setIcon(weatherIcon[weatherIconCode]||"./iamge/sun.png")
+
     }catch(error){
         console.error("error your page",error.message);
     }finally{
@@ -91,6 +120,10 @@ const handleKey=(e)=>{
  }
 }
 
+ useEffect(function(){
+search();
+ },[])
+
   return (
     <div className="App">
       <div className='container'>
@@ -103,7 +136,7 @@ const handleKey=(e)=>{
             </div>
            
         </div>
-        <Weather temp={temp}  city={city} country={country} lat={lat} long={long} humidity={humidity} wind={wind}/>
+        <Weather temp={temp} icon={icon}  city={city} country={country} lat={lat} long={long} humidity={humidity} wind={wind}/>
       </div>
        
     </div>
